@@ -94,12 +94,12 @@ Base URL: `http://localhost:8080`
 📝 Gerenciamento de Tarefas (Rotas Protegidas por JWT)
 ⚠️ Obrigatório: Todas as requisições abaixo necessitam do cabeçalho Authorization: Bearer <SEU_TOKEN_JWT>.
 
-| Método | Endpoint            | Descrição                                      | Corpo da Requisição (JSON) |
-|`GET`   |`/tarefas`           |`Lista todas as tarefas do banco de dados`      |`nenhum`                                                  |
-|`POST`  |`/tarefas`           |`Cria uma nova tarefa no sistema`               |`{"titulo": "...", "descricao": "...", "status": "..."}`  |
-|`PUT`   |`/tarefas/:id`        |`Atualiza título, descrição ou dados completos`|`{"titulo": "...", "descricao": "...", "status": "..."}`  |
-|`PATCH` |`/tarefas/:id/status`|`Atualiza exclusivamente o status da tarefa`    |`{"status": "concluido"}`                                 |
-|`DELETE`|`/tarefas/:id`       |`Remove uma tarefa de forma definitiva`         |`nenhum`                                                  |
+| Método | Endpoint             | Descrição                                      | Corpo da Requisição (JSON)                               |
+|`GET`   |`/tarefas`            |`Lista todas as tarefas do banco de dados`      |`nenhum`                                                  |
+|`POST`  |`/tarefas`            |`Cria uma nova tarefa no sistema`               |`{"titulo": "...", "descricao": "...", "status": "..."}`  |
+|`PUT`   |`/tarefas/:id`        |`Atualiza título, descrição ou dados completos` |`{"titulo": "...", "descricao": "...", "status": "..."}`  |
+|`PATCH` |`/tarefas/:id/status` |`Atualiza exclusivamente o status da tarefa`    |`{"status": "concluido"}`                                 |
+|`DELETE`|`/tarefas/:id`        |`Remove uma tarefa de forma definitiva`         |`nenhum`                                                  |
 
 ### Exemplos de Requisição por cURL
 
