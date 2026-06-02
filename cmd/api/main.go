@@ -1,16 +1,24 @@
 package main
 
 import (
+	"log"
+
+	"api_rest/internal/config"
 	"api_rest/internal/database"
 	"api_rest/internal/handler"
 	"api_rest/internal/repository"
 	"api_rest/internal/router"
 	"api_rest/internal/service"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	dsn := "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
-	db := database.Connect(dsn)
+	if err := godotenv.Load(); err != nil {
+		log.Println("Arquivo .env não encontrado, usando variáveis de ambiente do sistema")
+	}
+
+	db := database.Connect(config.LoadDatabase().DSN())
 
 	tarefaRepo := repository.NewTarefaRepository(db)
 	tarefaService := service.NewTarefaService(tarefaRepo)
