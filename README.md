@@ -89,9 +89,9 @@ Base URL: `http://localhost:8080`
 👤 Autenticação e Usuários (Rotas Públicas)
 
 | Método | Endpoint       | Descrição                                               | Corpo da Requisição (`JSON`)        |
-|:---    | :---           | :---     |
-| `POST` |`/usuario`      | `Cadastra um novo usuário com senha criptografada`      | `{"email": "...", "senha": "..."}`  |
-| `POST` |`/usuario/login`| `Autentica o usuário e gera um Token JWT válido por 24h`| `{"email": "...", "senha": "..."}`  |
+|:---    | :---           | :---     |:--- |
+| `POST` |`/usuario`      | Cadastra um novo usuário com senha criptografada      | `{"email": "...", "senha": "..."}`  |
+| `POST` |`/usuario/login`| Autentica o usuário e gera um Token JWT válido por 24h| `{"email": "...", "senha": "..."}`  |
 
 📝 Gerenciamento de Tarefas (Rotas Protegidas por JWT)
 ⚠️ Obrigatório: Todas as requisições abaixo necessitam do cabeçalho Authorization: Bearer <SEU_TOKEN_JWT>.
