@@ -6,27 +6,33 @@ API REST para gerenciamento de tarefas (To-Do List), desenvolvida em **Go**. O p
 
 | Tecnologia | Uso |
 | :--- | :--- |
-| [Go](https://go.dev/) | Linguagem |
+| [Go](https://go.dev/) | Linguagem de Programação |
 | [Gin](https://github.com/gin-gonic/gin) | Framework HTTP |
-| [GORM](https://gorm.io/) | ORM |
+| [GORM](https://gorm.io/) | ORM (Mapeamento Objeto-Relacional) |
 | [PostgreSQL](https://www.postgresql.org/) | Banco de dados |
 | [godotenv](https://github.com/joho/godotenv) | Carregamento de `.env` em desenvolvimento |
+| [Bcrypt](https://pkg.go.dev/golang.org/x/crypto/bcrypt) | Hashing seguro de senhas |
+| [JWT-Go (v5)](https://github.com/golang-jwt/jwt) | Emissão e validação de tokens de acesso |
+
 
 ## Estrutura do projeto
 
 ```
 api_rest/
-├── cmd/api/                 # Ponto de entrada da aplicação
+├── cmd/api/                 # Ponto de entrada da aplicação (main.go)
 ├── internal/
 │   ├── config/              # Variáveis de ambiente e DSN
-│   ├── database/            # Conexão e migrations
-│   ├── model/               # Entidades
-│   ├── repository/          # Persistência (GORM)
-│   ├── service/             # Regras de negócio
-│   ├── handler/             # Handlers HTTP
-│   └── router/              # Rotas Gin
+│   ├── database/            # Conexão e migrations automáticas
+│   ├── middleware/          # Interceptador de segurança (AuthRequired JWT)
+│   ├── model/               # Entidades e structs (Tarefa, Usuario)
+│   ├── repository/          # Camada de persistência e banco de dados (GORM)
+│   ├── service/             # Regras de negócio, Bcrypt e assinatura (JwtKey)
+│   ├── handler/             # Handlers HTTP para processamento de JSON
+│   └── router/              # Configuração e agrupamento de rotas Gin
 ├── .env.example             # Modelo de configuração local
-└── go.mod
+├── .gitignore               # Arquivos ignorados no versionamento (.env)
+└── go.mod                   # Gerenciador de módulos e dependências
+
 ```
 
 ## Pré-requisitos
@@ -50,6 +56,7 @@ cp .env.example .env
 | `DB_NAME` | Nome do banco | `postgres` |
 | `DB_PORT` | Porta do banco | `5432` |
 | `DB_SSLMODE` | Modo SSL (`disable`, `require`, etc.) | `disable` |
+| `JWT_SECRET` | Chave de assinatura dos tokens (`opcional se houver fallback`) | `variável de sistema` |
 
 O arquivo `.env` é ignorado pelo Git. Em produção, defina as variáveis diretamente no ambiente (Docker, Kubernetes, CI, etc.) — o `.env` não é obrigatório.
 
@@ -60,7 +67,7 @@ Se o `.env` não existir, a API usa as variáveis do sistema operacional ou os v
 1. Clone o repositório:
 
    ```bash
-   git clone https://github.com/azevedoguigo/API_Rest.git
+   git clone https://github.com/TrentinJr/API_Rest.git
    cd API_Rest
    ```
 
@@ -79,57 +86,47 @@ A API sobe em `http://localhost:8080`. As migrations das tabelas são aplicadas 
 
 Base URL: `http://localhost:8080`
 
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `POST` | `/tarefas` | Cria uma tarefa |
-| `GET` | `/tarefas` | Lista todas as tarefas |
-| `PUT` | `/tarefas/:id` | Atualiza título e descrição |
-| `PATCH` | `/tarefas/:id/status` | Atualiza o status de conclusão |
-| `DELETE` | `/tarefas/:id` | Remove uma tarefa |
+👤 Autenticação e Usuários (Rotas Públicas)
+| Método | Endpoint       | Descrição                                             | Corpo da Requisição (JSON)        |
+| `POST` |`/usuario`      | Cadastra um novo usuário com senha criptografada      | `{"email": "...", "senha": "..."}`|
+| `POST` |`/usuario/login`| Autentica o usuário e gera um Token JWT válido por 24h|``{"email": "...", "senha": "..."}`|
 
-### Exemplos de requisição
+📝 Gerenciamento de Tarefas (Rotas Protegidas por JWT)
+⚠️ Obrigatório: Todas as requisições abaixo necessitam do cabeçalho Authorization: Bearer <SEU_TOKEN_JWT>.
 
-**Criar tarefa**
+| Método | Endpoint            | Descrição                                      | Corpo da Requisição (JSON) |
+|`GET`   |`/tarefas`           |`Lista todas as tarefas do banco de dados`      |`nenhum`                                                  |
+|`POST`  |`/tarefas`           |`Cria uma nova tarefa no sistema`               |`{"titulo": "...", "descricao": "...", "status": "..."}`  |
+|`PUT`   |`/tarefas/:id`        |`Atualiza título, descrição ou dados completos`|`{"titulo": "...", "descricao": "...", "status": "..."}`  |
+|`PATCH` |`/tarefas/:id/status`|`Atualiza exclusivamente o status da tarefa`    |`{"status": "concluido"}`                                 |
+|`DELETE`|`/tarefas/:id`       |`Remove uma tarefa de forma definitiva`         |`nenhum`                                                  |
 
-```bash
-curl -X POST http://localhost:8080/tarefas \
+### Exemplos de Requisição por cURL
+
+1. Realizar Login e obter Token:
+curl -X POST http://localhost:8080/usuarios/login \
   -H "Content-Type: application/json" \
-  -d '{"titulo": "Estudar Go", "descricao": "Praticar GORM"}'
-```
+  -d '{"email": "teste@email.com", "senha": "senha123"}'
 
-**Listar tarefas**
 
-```bash
-curl http://localhost:8080/tarefas
-```
+2. Listar tarefas (Exemplo protegida):
+curl http://localhost:8080/tarefas \
+  -H "Authorization: Bearer SUBST_PELO_SEU_TOKEN_JWT"
 
-**Editar tarefa**
 
-```bash
-curl -X PUT http://localhost:8080/tarefas/1 \
-  -H "Content-Type: application/json" \
-  -d '{"titulo": "Novo título", "descricao": "Nova descrição"}'
-```
-
-**Alterar status**
-
-```bash
+3. Alterar status da tarefa:
 curl -X PATCH http://localhost:8080/tarefas/1/status \
+  -H "Authorization: Bearer SUBST_PELO_SEU_TOKEN_JWT" \
   -H "Content-Type: application/json" \
-  -d '{"concluida": true}'
-```
+  -d '{"status": "concluido"}'
 
-**Deletar tarefa**
-
-```bash
-curl -X DELETE http://localhost:8080/tarefas/1
-```
 
 ### Respostas de erro comuns
 
 | Status | Situação |
 | :--- | :--- |
 | `400` | JSON inválido ou ID malformado |
+| `401` | Unauthorized |
 | `404` | Tarefa não encontrada |
 | `500` | Erro interno (ex.: falha no banco) |
 
