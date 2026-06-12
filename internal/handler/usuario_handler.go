@@ -16,11 +16,9 @@ func NewUsuarioHandler(s *service.UsuarioService) *UsuarioHandler {
 	return &UsuarioHandler{service: s}
 }
 
-// POST /usuarios/cadastrar
 func (h *UsuarioHandler) Cadastrar(c *gin.Context) {
 	var u model.Usuario
 
-	// O Gin usa c.ShouldBindJSON em vez do json.NewDecoder
 	if err := c.ShouldBindJSON(&u); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido"})
 		return
@@ -34,7 +32,6 @@ func (h *UsuarioHandler) Cadastrar(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-// POST /usuarios/login
 func (h *UsuarioHandler) Login(c *gin.Context) {
 	var credenciais struct {
 		Email string `json:"email"`
@@ -52,6 +49,5 @@ func (h *UsuarioHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Retorna o token em formato JSON usando o Gin
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }

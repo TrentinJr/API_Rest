@@ -16,11 +16,11 @@ type DatabaseConfig struct {
 
 func LoadDatabase() DatabaseConfig {
 	return DatabaseConfig{
-		Host:     env("DB_HOST", "localhost"),
+		Host:     env("DB_HOST", "127.0.0.1"),
 		User:     env("DB_USER", "postgres"),
-		Password: env("DB_PASSWORD", "postgres"),
+		Password: env("DB_PASSWORD", "minhasenha"),
 		Name:     env("DB_NAME", "postgres"),
-		Port:     env("DB_PORT", "5432"),
+		Port:     env("DB_PORT", "5433"),
 		SSLMode:  env("DB_SSLMODE", "disable"),
 	}
 }

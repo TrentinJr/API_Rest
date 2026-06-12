@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"api_rest/internal/service" // Importa o service para pegar a chave jwtKey
+	"api_rest/internal/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -26,12 +26,11 @@ func AuthRequired() gin.HandlerFunc {
 
 		tokenString := parts[1]
 
-		// AJUSTE AQUI: Usamos a variável service.JwtKey para validar o token
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}
-			return service.JwtKey, nil // <-- Mudamos para service.JwtKey
+			return service.JwtKey, nil
 		})
 
 		if err != nil || !token.Valid {
